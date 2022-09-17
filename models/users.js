@@ -6,7 +6,10 @@ var Schema = mongoose.Schema;
 var UserSchema = new Schema(
   {
     username: String,
+    id: String,
     mention: String,
+    dmChannel: String,
+    apiKey: String,
   },
   { collection: "users" }
 );
