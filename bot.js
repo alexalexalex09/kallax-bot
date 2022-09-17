@@ -1,12 +1,10 @@
 require("dotenv").config();
+const axios = require("axios").default;
 const eris = require("eris");
 require("./mongo.js"); //Start the mongo connection
 const User = require("./models/users.js");
 
 const PREFIX = "kb!";
-const BOT_PUBLIC_ID =
-  "da7a27d9a52d2a1eacc4561eaeaa2eb4a7ce9e6b5f22b7acab6fb0267ffbe059";
-const API_URL = "https://kallax.io/security_credentials/" + BOT_PUBLIC_ID;
 const API_MSG = `Hello, please respond to this message with your API key. Remember, never share your API key with others.`;
 
 const bot = new eris.Client(process.env.bot_token);
@@ -17,16 +15,16 @@ commandHandlerForCommandName["getBoardGame"] = (msg, args) => {
   const mention = "<@" + msg.author.id + ">";
   User.findOne({ id: msg.author.id }).then(function (curUser) {
     const options = {
-      method: "GET",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": curUser.apiKey,
       },
     };
-    fetch(
-      "https://api.kallax.io/api/owns/" + boardGame + "?source=bgg",
-      options
-    )
+    axios
+      .get(
+        "https://api.kallax.io/api/owns/" + boardGame + "?source=bgg",
+        options
+      )
       .then(function (response) {
         if (response.status < 200 || response.status > 299) {
           var ret = { error: true, code: response.status };
