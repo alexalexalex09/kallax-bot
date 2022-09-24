@@ -7,7 +7,22 @@ const User = require("./models/users.js");
 const PREFIX = "kb!";
 const API_MSG = `Hello, please respond to this message with your API key. Remember, never share your API key with others.`;
 
-const bot = new eris.Client(process.env.bot_token);
+const bot = new eris.Client(process.env.bot_token, {
+  intents: [
+    eris.Constants.Intents.guilds,
+    eris.Constants.Intents.guildMessages,
+    eris.Constants.Intents.guildMessageReactions,
+    eris.Constants.Intents.directMessages,
+    eris.Constants.Intents.directMessageReactions,
+  ],
+});
+/*
+bot.createCommand({
+  name: "getBoardGame",
+  description: "input a board game from BGG",
+  options: [],
+  type: eris.Constants.ApplicationCommandTypes.CHAT_INPUT,
+});*/
 
 const commandHandlerForCommandName = {};
 commandHandlerForCommandName["getBoardGame"] = (msg, args) => {
@@ -46,10 +61,12 @@ commandHandlerForCommandName["getBoardGame"] = (msg, args) => {
               return ret;
           }
         } else {
-          return response.json();
+          console.log({ response });
+          return response;
         }
       })
-      .then(function (data) {
+      .then(function (res) {
+        const data = res.data;
         if (data.error) {
           var error = data;
           msg.channel.createMessage(JSON.stringify(error, null, 4));
@@ -114,7 +131,15 @@ bot.on("messageCreate", async (msg) => {
         curUser.save();
       });
   }
-
+  /*
+  bot.on("interactionCreate", async (i) => {
+    if (!(interaction instanceof CommandInteraction)) return;
+    if (commandHandlerForCommandName.indexOf(interaction.data.name) === -1) {
+      return i.createFollowup("Error");
+    }
+    commandHandlerForCommandName[interaction.data.name]();
+  });
+*/
   // Ignore any message that doesn't start with the correct prefix.
   if (!content.startsWith(PREFIX)) {
     return;
